@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadyWARP - VPN сервис</title>
+    
+    <!-- Подключение современного шрифта Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Подключение иконок FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Базовые настройки и переменные */
+        :root {
+            --bg-color: rgb(35, 116, 198);
+            --text-light: #ffffff;
+            --card-bg: #ffffff;
+            --primary-blue: rgb(35, 116, 198);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Плавное появление элементов при прокрутке */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Шапка (Хедер) --- */
+        header {
+            display: flex;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(35, 116, 198, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Стили для твоей иконки */
+        .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px; /* Скругление как у приложений iOS */
+            object-fit: cover;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* --- Главный экран --- */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            margin-top: 40px;
+        }
+
+        #hero h2 {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 800;
+            max-width: 900px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+
+        .highlight {
+            font-style: italic;
+            font-weight: 900;
+            position: relative;
+            display: inline-block;
+            color: #ffffff; 
+        }
+
+        /* Анимированная линия под словом "реально" */
+        .highlight::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            height: 6px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            width: 0;
+            transition: width 1s cubic-bezier(0.25, 1, 0.5, 1) 0.4s;
+            box-shadow: 0 2px 10px rgba(255,255,255,0.5);
+        }
+
+        .reveal.active .highlight::after {
+            width: 100%;
+        }
+
+        /* --- Блок преимуществ --- */
+        #features {
+            padding: 100px 5%;
+            text-align: center;
+        }
+
+        #features h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 60px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            color: var(--primary-blue);
+            padding: 40px 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .card i {
+            font-size: 55px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .card p {
+            font-weight: 600;
+            opacity: 0.8;
+            font-size: 1.05rem;
+        }
+
+        /* --- Блок с секретным кодом --- */
+        #access {
+            padding: 100px 5%;
+            text-align: center;
+            background: rgba(0,0,0,0.15); /* Легкое затемнение фона */
+            border-radius: 40px 40px 0 0;
+            margin-top: 50px;
+        }
+
+        #access h2 {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 800;
+        }
+
+        .code-input-wrapper {
+            margin: 40px 0;
+        }
+
+        #secret-code {
+            padding: 18px 30px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            border: 3px solid transparent;
+            border-radius: 50px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        #secret-code::placeholder {
+            color: #999;
+            font-weight: 600;
+            text-transform: none;
+        }
+
+        #secret-code:focus {
+            border-color: rgba(255,255,255,0.8);
+            box-shadow: 0 0 30px rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Подсветка зеленым при правильном вводе */
+        #secret-code.success {
+            border-color: #4CAF50;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
+            color: #4CAF50;
+        }
+
+        .access-desc {
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        /* Кнопки скачивания */
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 0;
+            overflow: hidden;
+        }
+
+        .buttons-container.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            height: auto;
+            overflow: visible;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: #ffffff;
+            color: var(--primary-blue);
+            text-decoration: none;
+            padding: 20px 40px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            /* Анимация мягкой пульсации */
+            animation: pulse 2s infinite;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn i {
+            font-size: 1.3rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            animation: none; /* Отключаем пульсацию при наведении */
+            box-shadow: 0 10px 25px rgba(255,255,255,0.4);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        /* --- Подвал --- */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background-color: rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* --- Адаптивность --- */
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn {
+                width: 100%;
+                max-width: 320px;
+                justify-content: center;
+            }
+            header {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Шапка -->
+    <header>
+        <div class="logo-container">
+            <!-- Твоя иконка -->
+            <img src="logo.jpeg" alt="ReadyWARP Logo" class="logo">
+            <h1>ReadyWARP</h1>
+        </div>
+    </header>
+
+    <main>
+        <!-- Главный экран -->
+        <section id="hero" class="reveal">
+            <h2>WARP который <span class="highlight">реально</span> помогает!</h2>
+        </section>
+
+        <!-- Блок преимуществ -->
+        <section id="features" class="reveal">
+            <h2>Почему наш WARP стабильный?</h2>
+            <p class="subtitle">Мы работаем даже с заблокированными сервисами. Никаких ограничений скорости.</p>
+            
+            <div class="cards-container">
+                <div class="card">
+                    <i class="fa-brands fa-youtube" style="color: #FF0000;"></i>
+                    <h3>YouTube</h3>
+                    <p>Грузится в 4K без рекламы</p>
+                </div>
+                <div class="card">
+                    <i class="fa-brands fa-telegram" style="color: #2AABEE;"></i>
+                    <h3>Telegram</h3>
+                    <p>Грузит мгновенно</p>
+                </div>
+                <div class="card">
+                    <i class="fa-brands fa-discord" style="color: #5865F2;"></i>
+                    <h3>Discord</h3>
+                    <p>Звонки работают без прерываний</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Блок с секретным кодом -->
+        <section id="access" class="reveal">
+            <h2>Чтобы получить WARP конфигурацию, введи специальный код.</h2>
+            
+            <div class="code-input-wrapper">
+                <input type="text" id="secret-code" placeholder="Введи секретный код..." autocomplete="off">
+            </div>
+            
+            <p class="access-desc">После ввода кода, ты получишь специальную WARP конфигурацию</p>
+            
+            <div class="buttons-container" id="download-buttons">
+                <!-- Ссылки на твои ZIP архивы -->
+                <a href="wireguard_config.zip" download class="btn">
+                    <i class="fa-solid fa-download"></i> Скачать для WireGuard
+                </a>
+                <a href="amnezia_config.zip" download class="btn">
+                    <i class="fa-solid fa-download"></i> Скачать для Amnezia WG
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Подвал -->
+    <footer>
+        <p>Yarosl4vn Corp. 2026</p>
+    </footer>
+
+    <!-- Скрипты для анимаций и логики кода -->
+    <script>
+        // 1. Анимация появления элементов при скролле
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        };
+
+        const revealOptions = {
+            threshold: 0.15, // Элемент начнет появляться, когда 15% его видно на экране
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
+
+        revealElements.forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // Запуск анимации первого экрана сразу после загрузки
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('hero').classList.add('active');
+            }, 100);
+        });
+
+        // 2. Логика секретного кода
+        const secretInput = document.getElementById('secret-code');
+        const downloadButtons = document.getElementById('download-buttons');
+        const CORRECT_CODE = "YAWARP374";
+
+        secretInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim().toUpperCase();
+            
+            if (val === CORRECT_CODE) {
+                downloadButtons.classList.add('show');
+                secretInput.classList.add('success');
+            } else {
+                downloadButtons.classList.remove('show');
+                secretInput.classList.remove('success');
+            }
+        });
+    </script>
+</body>
+                      </html>
